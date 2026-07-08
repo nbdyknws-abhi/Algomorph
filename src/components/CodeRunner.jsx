@@ -207,15 +207,25 @@ function AlgoRunner({ problem, activeLang, code, onLangChange, langs }) {
     const codeToInject = wrapCode(problem.id, activeLang, currentCode);
 
     if (iframe && iframe.contentWindow) {
+      // 1. Populate the code into OneCompiler editor
       iframe.contentWindow.postMessage({
         eventType: 'populateCode',
         language: ocLang,
         files: [{ name: fileName, content: codeToInject }]
       }, '*');
+
+      // 2. Trigger run automatically after a short delay
+      setTimeout(() => {
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({
+            eventType: 'triggerRun'
+          }, '*');
+        }
+      }, 250);
     }
 
     setIsConsoleOpen(true); // Automatically open the console drawer
-    setSyncStatus(hasCases ? '✓ 12 test cases injected! Click Run inside sandbox console.' : '✓ Code synced! Click Run inside sandbox console.');
+    setSyncStatus(hasCases ? '⚡ Running 12 test cases in Sandbox...' : '⚡ Running code in Sandbox...');
     setTimeout(() => setSyncStatus(''), 5000);
   };
 
